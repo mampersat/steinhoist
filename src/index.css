@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --color-stein-bg: #1c1410;
+  --color-stein-surface: #2a1f18;
+  --color-stein-amber: #d99e2b;
+  --color-stein-amber-bright: #f0b93d;
+  --color-stein-cream: #f6ead9;
+  --color-stein-red: #c8402c;
+  --color-stein-green: #3f9142;
+  --font-display: "Georgia", "Times New Roman", serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-stein-bg);
+  color: var(--color-stein-cream);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent accidental text selection / callouts on giant tap targets during a hold */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
