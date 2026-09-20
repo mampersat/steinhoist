@@ -18,7 +18,7 @@ export function Layout() {
             key={tab.to}
             to={tab.to}
             className={({ isActive }) =>
-              `flex-1 py-4 text-center text-sm font-semibold uppercase tracking-wide ${
+              `flex-1 py-4 text-center text-sm font-semibold ${
                 isActive ? 'text-stein-amber-bright' : 'text-stein-cream/60'
               }`
             }

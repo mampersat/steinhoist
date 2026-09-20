@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { BigButton } from '../components/BigButton'
+import { Stat } from '../components/Stat'
 import { daysBetween, toISODate } from '../domain/date'
 import { formatDaysRemaining, formatMMSS } from '../domain/format'
 import { computePR } from '../domain/pr'
@@ -52,23 +53,19 @@ export function Home() {
     <div className="mx-auto max-w-md px-6 py-10">
       <h1 className="mb-8 font-display text-3xl font-bold text-stein-amber-bright">Stein Hoist Trainer</h1>
 
-      <div className="mb-6 grid grid-cols-2 gap-4">
-        <StatCard label="Current PR" value={pr !== null ? formatMMSS(pr) : '—'} />
-        <StatCard
+      <div className="mb-8 flex divide-x divide-stein-amber/20 border-y border-stein-amber/15 py-5">
+        <Stat label="Current PR" value={pr !== null ? formatMMSS(pr) : '—'} />
+        <Stat
           label="Target"
           value={profile.targetHoldSeconds !== null ? formatMMSS(profile.targetHoldSeconds) : '—'}
         />
+        {profile.competitionDate && daysToComp !== null && (
+          <Stat label="Competition" value={formatDaysRemaining(daysToComp)} />
+        )}
       </div>
 
-      {profile.competitionDate && daysToComp !== null && (
-        <div className="mb-6 rounded-xl bg-stein-surface p-4 text-center">
-          <div className="text-sm uppercase tracking-wide text-stein-cream/60">Competition</div>
-          <div className="text-2xl font-bold text-stein-amber-bright">{formatDaysRemaining(daysToComp)}</div>
-        </div>
-      )}
-
       <div className="mb-8 rounded-xl border border-stein-amber/30 bg-stein-surface p-5">
-        <div className="text-sm uppercase tracking-wide text-stein-cream/60">
+        <div className="text-sm font-semibold text-stein-cream/60">
           {inProgress ? 'Resume workout' : "Today's workout"}
         </div>
         <div className="mt-1 text-2xl font-bold">{typeLabel[inProgress?.type ?? nextWorkout.type]}</div>
@@ -84,15 +81,6 @@ export function Home() {
       <BigButton onClick={handleStart} disabled={!startable} className={!startable ? 'opacity-40' : ''}>
         {inProgress ? 'Resume Workout' : 'Start Workout'}
       </BigButton>
-    </div>
-  )
-}
-
-function StatCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl bg-stein-surface p-4 text-center">
-      <div className="text-sm uppercase tracking-wide text-stein-cream/60">{label}</div>
-      <div className="text-3xl font-bold text-stein-amber-bright">{value}</div>
     </div>
   )
 }

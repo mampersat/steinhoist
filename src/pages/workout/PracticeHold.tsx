@@ -119,7 +119,7 @@ export function PracticeHold() {
   const isPR = resultSeconds !== null && (priorPR === null || resultSeconds > priorPR)
   return (
     <Screen>
-      <div className="mb-2 text-sm uppercase tracking-wide text-stein-cream/60">Hold time</div>
+      <div className="mb-2 text-sm font-semibold text-stein-cream/60">Hold time</div>
       <div className="mb-4 text-7xl font-black text-stein-amber-bright">
         {resultSeconds !== null ? formatMMSS(resultSeconds) : '--'}
       </div>

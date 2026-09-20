@@ -1,3 +1,4 @@
+import { Stat } from '../components/Stat'
 import { formatMMSS } from '../domain/format'
 import { computePR } from '../domain/pr'
 import { describeTrainingImprovement, weeklyTrainingVolume } from '../domain/progress'
@@ -19,9 +20,8 @@ export function Progress() {
     <div className="mx-auto max-w-md px-6 py-10">
       <h1 className="mb-6 font-display text-3xl font-bold text-stein-amber-bright">Progress</h1>
 
-      <div className="mb-8 rounded-xl bg-stein-surface p-5 text-center">
-        <div className="text-sm uppercase tracking-wide text-stein-cream/60">Personal record</div>
-        <div className="text-4xl font-bold text-stein-amber-bright">{pr !== null ? formatMMSS(pr) : '—'}</div>
+      <div className="mb-8 border-y border-stein-amber/15 py-6">
+        <Stat label="Personal record" value={pr !== null ? formatMMSS(pr) : '—'} size="xl" />
       </div>
 
       <Section title="Weekly training volume">
@@ -63,7 +63,7 @@ function pairwiseImprovements(history: WorkoutSession[]): { session: WorkoutSess
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-8">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-stein-cream/70">{title}</h2>
+      <h2 className="mb-3 border-b border-stein-amber/15 pb-2 text-base font-semibold text-stein-cream/75">{title}</h2>
       <div className="flex flex-col gap-2">{children}</div>
     </div>
   )

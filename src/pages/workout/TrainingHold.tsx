@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { BigButton } from '../../components/BigButton'
+import { Stat } from '../../components/Stat'
 import {
   currentHoldSeconds,
   initTrainingState,
@@ -209,7 +210,7 @@ export function TrainingHold() {
   if (state.phase === 'complete') {
     return (
       <Screen>
-        <div className="mb-2 text-sm uppercase tracking-wide text-stein-cream/60">Workout complete</div>
+        <div className="mb-2 text-sm font-semibold text-stein-cream/60">Workout complete</div>
         <div className="mb-4 text-6xl font-black text-stein-amber-bright">
           {formatMMSS(state.accumulatedSeconds)} / {formatMMSS(state.targetAccumulatedSeconds)}
         </div>
@@ -224,7 +225,7 @@ export function TrainingHold() {
   if (state.phase === 'abandoned') {
     return (
       <Screen>
-        <div className="mb-2 text-sm uppercase tracking-wide text-stein-cream/60">Workout ended early</div>
+        <div className="mb-2 text-sm font-semibold text-stein-cream/60">Workout ended early</div>
         <div className="mb-4 text-5xl font-black text-stein-amber-bright">
           {formatMMSS(state.accumulatedSeconds)} / {formatMMSS(state.targetAccumulatedSeconds)}
         </div>
@@ -240,14 +241,14 @@ export function TrainingHold() {
   // holding or resting
   return (
     <Screen>
-      <div className="mb-8 grid w-full grid-cols-2 gap-4 text-center">
-        <MiniStat label="Target" value={formatMMSS(state.targetAccumulatedSeconds)} />
-        <MiniStat label="Accumulated" value={formatMMSS(state.accumulatedSeconds)} />
+      <div className="mb-8 flex w-full divide-x divide-stein-amber/20 border-y border-stein-amber/15 py-4">
+        <Stat label="Target" value={formatMMSS(state.targetAccumulatedSeconds)} />
+        <Stat label="Accumulated" value={formatMMSS(state.accumulatedSeconds)} />
       </div>
 
       {state.phase === 'holding' ? (
         <>
-          <div className="mb-2 text-sm uppercase tracking-wide text-stein-cream/60">Current hold</div>
+          <div className="mb-2 text-sm font-semibold text-stein-cream/60">Current hold</div>
           <div className="mb-10 text-7xl font-black tabular-nums text-stein-amber-bright">
             {formatMMSS(currentHoldSeconds(state, now))}
           </div>
@@ -257,7 +258,7 @@ export function TrainingHold() {
         </>
       ) : (
         <>
-          <div className="mb-2 text-sm uppercase tracking-wide text-stein-cream/60">Rest</div>
+          <div className="mb-2 text-sm font-semibold text-stein-cream/60">Rest</div>
           <div className="mb-10 text-7xl font-black tabular-nums text-stein-cream">
             {formatMMSS(secondsRemaining(state, now))}
           </div>
@@ -267,7 +268,7 @@ export function TrainingHold() {
 
       <button
         onClick={handleAbandonTap}
-        className="no-select mt-10 text-sm font-semibold uppercase tracking-wide text-stein-cream/50"
+        className="no-select mt-10 text-sm font-semibold text-stein-cream/50"
       >
         {confirmingAbandon ? 'Tap again to end workout' : 'End workout'}
       </button>
@@ -281,15 +282,6 @@ function IntervalSummary({ state }: { state: TrainingState }) {
     <div className="text-stein-cream/70">
       {state.intervals.map((i) => formatMMSS(i.holdSeconds)).join(' + ')} in {state.intervals.length} hold
       {state.intervals.length > 1 ? 's' : ''}
-    </div>
-  )
-}
-
-function MiniStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl bg-stein-surface p-3">
-      <div className="text-xs uppercase tracking-wide text-stein-cream/60">{label}</div>
-      <div className="text-2xl font-bold text-stein-amber-bright">{value}</div>
     </div>
   )
 }

@@ -62,9 +62,7 @@ function SessionRow({ session }: { session: WorkoutSession }) {
       ) : null}
 
       {session.status === 'abandoned' && (
-        <div className="mt-1 text-xs font-semibold uppercase tracking-wide text-stein-red">
-          {statusLabel[session.status]}
-        </div>
+        <div className="mt-1 text-xs font-semibold text-stein-red">{statusLabel[session.status]}</div>
       )}
     </div>
   )
