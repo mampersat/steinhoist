@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { BigButton } from '../components/BigButton'
 import { Stat } from '../components/Stat'
 import { daysBetween, toISODate } from '../domain/date'
@@ -7,6 +7,7 @@ import { computePR } from '../domain/pr'
 import { getNextWorkout } from '../domain/program'
 import { useProfile } from '../hooks/useProfile'
 import { useSessions } from '../hooks/useSessions'
+import { useSettings } from '../hooks/useSettings'
 import { sessionStore } from '../storage/repository'
 
 const typeLabel: Record<string, string> = {
@@ -20,6 +21,7 @@ const typeLabel: Record<string, string> = {
 export function Home() {
   const { profile } = useProfile()
   const { sessions } = useSessions()
+  const { settings } = useSettings()
   const navigate = useNavigate()
 
   if (!profile) return null
@@ -40,14 +42,20 @@ export function Home() {
       navigate('/workout/training', {
         state: {
           targetAccumulatedSeconds: nextWorkout.suggestedTargetSeconds,
-          restSeconds: nextWorkout.suggestedRestSeconds,
+          restSeconds: settings.restIntervalOverrideSeconds ?? nextWorkout.suggestedRestSeconds,
         },
       })
+    } else if (nextWorkout.type === 'strength') {
+      navigate('/workout/strength')
     }
-    // strength / rest days have no in-app timer flow (yet)
+    // rest days have no action - recovery, not a task
   }
 
-  const startable = nextWorkout.type === 'practice' || nextWorkout.type === 'training' || !!inProgress
+  const startable =
+    nextWorkout.type === 'practice' ||
+    nextWorkout.type === 'training' ||
+    nextWorkout.type === 'strength' ||
+    !!inProgress
 
   return (
     <div className="mx-auto max-w-md px-6 py-10">
@@ -72,8 +80,8 @@ export function Home() {
         {!inProgress && <p className="mt-2 text-sm text-stein-cream/70">{nextWorkout.rationale}</p>}
         {!inProgress && nextWorkout.type === 'training' && nextWorkout.suggestedTargetSeconds && (
           <p className="mt-2 text-sm text-stein-cream/70">
-            Target {formatMMSS(nextWorkout.suggestedTargetSeconds)}, rest {nextWorkout.suggestedRestSeconds}s between
-            holds.
+            Target {formatMMSS(nextWorkout.suggestedTargetSeconds)}, rest{' '}
+            {settings.restIntervalOverrideSeconds ?? nextWorkout.suggestedRestSeconds}s between holds.
           </p>
         )}
       </div>
@@ -81,6 +89,20 @@ export function Home() {
       <BigButton onClick={handleStart} disabled={!startable} className={!startable ? 'opacity-40' : ''}>
         {inProgress ? 'Resume Workout' : 'Start Workout'}
       </BigButton>
+
+      <div className="mt-6 flex items-center justify-center text-sm font-semibold text-stein-cream/50">
+        <Link to="/rules" className="px-3">
+          Form &amp; rules
+        </Link>
+        <span className="h-4 w-px bg-stein-cream/20" />
+        <Link to="/workout/competition" className="px-3">
+          Log competition
+        </Link>
+        <span className="h-4 w-px bg-stein-cream/20" />
+        <Link to="/settings" className="px-3">
+          Settings
+        </Link>
+      </div>
     </div>
   )
 }
