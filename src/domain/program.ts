@@ -146,3 +146,64 @@ export function getNextWorkout(
         : 'Progressing target time / trimming rest based on your last training hold.',
   }
 }
+
+/**
+ * Projects the next `days` prescriptions assuming every practice/training hold is completed
+ * exactly as suggested (a moderate, multi-interval finish - neither an easy nor an abandoned one).
+ * This is a forward-looking preview, not a fixed schedule: the program is adaptive by design, so
+ * an actual training day that goes better or worse than this will shift everything after it.
+ */
+export function previewProgram(
+  profile: Profile,
+  sessions: WorkoutSession[],
+  days: number,
+  today: Date = new Date(),
+  restOverrideSeconds: number | null = null,
+): ProgramEntry[] {
+  const entries: ProgramEntry[] = []
+  let projectedSessions = sessions
+
+  for (let i = 0; i < days; i++) {
+    const date = new Date(today.getTime() + i * 86_400_000)
+    const entry = getNextWorkout(profile, projectedSessions, date)
+    entries.push(entry)
+
+    if (entry.type === 'practice') {
+      projectedSessions = [...projectedSessions, simulatedCompletion('practice', entry.date, {})]
+    } else if (entry.type === 'training' && entry.suggestedTargetSeconds) {
+      const target = entry.suggestedTargetSeconds
+      const rest = restOverrideSeconds ?? entry.suggestedRestSeconds ?? 60
+      const third = target / 3
+      projectedSessions = [
+        ...projectedSessions,
+        simulatedCompletion('training', entry.date, {
+          targetAccumulatedSeconds: target,
+          accumulatedSeconds: target,
+          intervals: [
+            { holdSeconds: third, restPrescribedSeconds: rest, restActualSeconds: rest },
+            { holdSeconds: third, restPrescribedSeconds: rest, restActualSeconds: rest },
+            { holdSeconds: target - 2 * third, restPrescribedSeconds: null, restActualSeconds: null },
+          ],
+        }),
+      ]
+    }
+  }
+
+  return entries
+}
+
+function simulatedCompletion(
+  type: 'practice' | 'training',
+  date: string,
+  fields: Partial<WorkoutSession>,
+): WorkoutSession {
+  return {
+    id: `preview-${date}-${type}`,
+    type,
+    date,
+    startedAt: `${date}T12:00:00.000Z`,
+    status: 'completed',
+    prAtTimeOfSession: null,
+    ...fields,
+  }
+}

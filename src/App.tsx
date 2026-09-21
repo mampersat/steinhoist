@@ -4,6 +4,7 @@ import { useProfile } from './hooks/useProfile'
 import { History } from './pages/History'
 import { Home } from './pages/Home'
 import { Onboarding } from './pages/Onboarding'
+import { Plan } from './pages/Plan'
 import { Progress } from './pages/Progress'
 import { Rules } from './pages/Rules'
 import { Settings } from './pages/Settings'
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/history" element={<History />} />
         <Route path="/progress" element={<Progress />} />
+        <Route path="/plan" element={<Plan />} />
         <Route path="/rules" element={<Rules />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
