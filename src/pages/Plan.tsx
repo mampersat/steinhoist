@@ -3,6 +3,7 @@ import { previewProgram } from '../domain/program'
 import { useProfile } from '../hooks/useProfile'
 import { useSessions } from '../hooks/useSessions'
 import { useSettings } from '../hooks/useSettings'
+import { debugNow } from '../lib/debugClock'
 
 const PREVIEW_DAYS = 7
 
@@ -29,7 +30,7 @@ export function Plan() {
 
   if (!profile) return null
 
-  const today = new Date()
+  const today = debugNow()
   const todayISO = today.toISOString().slice(0, 10)
   const entries = previewProgram(profile, sessions, PREVIEW_DAYS, today, settings.restIntervalOverrideSeconds)
 

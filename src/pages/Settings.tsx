@@ -1,14 +1,27 @@
+import { useState } from 'react'
 import { ChoiceRow, Field, MinSecInput } from '../components/FormControls'
+import { nextAnnualDate } from '../domain/date'
 import { splitSeconds, toSeconds } from '../domain/format'
 import { useProfile } from '../hooks/useProfile'
 import { useSettings } from '../hooks/useSettings'
+import { resetAll } from '../storage/repository'
 import type { DominantArm, ExperienceLevel, Profile } from '../types'
 
 export function Settings() {
   const { profile, saveProfile } = useProfile()
   const { settings, saveSettings } = useSettings()
+  const [confirmingReset, setConfirmingReset] = useState(false)
 
   if (!profile) return null
+
+  function handleReset() {
+    if (!confirmingReset) {
+      setConfirmingReset(true)
+      return
+    }
+    resetAll()
+    window.location.href = '/onboarding'
+  }
 
   function updateProfile<K extends keyof Profile>(key: K, value: Profile[K]) {
     saveProfile({ ...profile, [key]: value } as Profile)
@@ -47,6 +60,13 @@ export function Settings() {
         <p className="mt-2 text-sm text-stein-cream/60">
           Drives the training phase - no date keeps the program in off-season mode indefinitely.
         </p>
+        <button
+          type="button"
+          onClick={() => updateProfile('competitionDate', nextAnnualDate(11, 1))}
+          className="mt-2 rounded-full bg-stein-bg px-3 py-1 text-xs font-semibold text-stein-amber-bright"
+        >
+          Pat's Peak (Nov 1)
+        </button>
       </Field>
 
       <Field label="Target hold time">
@@ -133,6 +153,23 @@ export function Settings() {
           />
           <span className="text-stein-cream/60">seconds</span>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <div className="mb-1 text-base font-semibold text-stein-red">Start over</div>
+        <p className="mb-3 text-sm text-stein-cream/60">
+          Erases your profile, history, and settings from this device. This can't be undone.
+        </p>
+        <button
+          type="button"
+          onClick={handleReset}
+          onBlur={() => setConfirmingReset(false)}
+          className={`w-full rounded-lg px-4 py-3 text-center font-semibold ${
+            confirmingReset ? 'bg-stein-red text-stein-cream' : 'bg-stein-surface text-stein-red'
+          }`}
+        >
+          {confirmingReset ? 'Tap again to erase everything' : 'Erase all data'}
+        </button>
       </div>
     </div>
   )

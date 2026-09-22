@@ -5,6 +5,7 @@ import { determinePhase } from '../../domain/program'
 import { computePR } from '../../domain/pr'
 import { useProfile } from '../../hooks/useProfile'
 import { useSessions } from '../../hooks/useSessions'
+import { debugNow } from '../../lib/debugClock'
 import type { WorkoutSession } from '../../types'
 
 interface Exercise {
@@ -36,7 +37,7 @@ export function Strength() {
 
   if (!profile) return null
 
-  const phase = determinePhase(profile.competitionDate, toISODate(new Date()))
+  const phase = determinePhase(profile.competitionDate, toISODate(debugNow()))
   const exercises = phase === 'off_season' ? OFF_SEASON_WORK : ENDURANCE_WORK
   const intro =
     phase === 'off_season'
@@ -47,7 +48,7 @@ export function Strength() {
     const session: WorkoutSession = {
       id: crypto.randomUUID(),
       type: 'strength',
-      date: toISODate(new Date()),
+      date: toISODate(debugNow()),
       startedAt: new Date().toISOString(),
       status: 'completed',
       prAtTimeOfSession: computePR(sessions),

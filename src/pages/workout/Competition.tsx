@@ -4,6 +4,7 @@ import { BigButton } from '../../components/BigButton'
 import { formatMMSS } from '../../domain/format'
 import { computePR } from '../../domain/pr'
 import { useSessions } from '../../hooks/useSessions'
+import { debugNow } from '../../lib/debugClock'
 import type { WorkoutSession } from '../../types'
 
 type Phase = 'ready' | 'holding' | 'complete'
@@ -46,7 +47,7 @@ export function Competition() {
     const session: WorkoutSession = {
       id: crypto.randomUUID(),
       type: 'competition',
-      date: new Date().toISOString().slice(0, 10),
+      date: debugNow().toISOString().slice(0, 10),
       startedAt: new Date(Date.now() - resultSeconds * 1000).toISOString(),
       status: 'completed',
       singleHoldSeconds: resultSeconds,

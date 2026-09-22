@@ -95,3 +95,8 @@ export const trainingRuntimeStore = {
     localStorage.removeItem(KEYS.trainingRuntime)
   },
 }
+
+/** Wipes profile, history, settings, and any in-progress workout - a full reset to first launch. */
+export function resetAll(): void {
+  Object.values(KEYS).forEach((key) => localStorage.removeItem(key))
+}

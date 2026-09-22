@@ -1,6 +1,6 @@
 import type { Interval } from '../types'
 
-export type TrainingPhase = 'countdown' | 'holding' | 'resting' | 'complete' | 'abandoned'
+export type TrainingPhase = 'ready' | 'countdown' | 'holding' | 'resting' | 'complete' | 'abandoned'
 
 export interface TrainingState {
   phase: TrainingPhase
@@ -16,6 +16,7 @@ export interface TrainingState {
 }
 
 export type TrainingAction =
+  | { type: 'START'; now: number }
   | { type: 'COUNTDOWN_FINISHED'; now: number }
   | { type: 'FAIL'; now: number }
   | { type: 'REST_FINISHED'; now: number }
@@ -41,12 +42,31 @@ export function initTrainingState(
   }
 }
 
+/** Like initTrainingState, but waits at 'ready' - the countdown clock doesn't start until a START action arrives. */
+export function initReadyState(targetAccumulatedSeconds: number, restPrescribedSeconds: number): TrainingState {
+  return {
+    phase: 'ready',
+    targetAccumulatedSeconds,
+    restPrescribedSeconds,
+    intervals: [],
+    accumulatedSeconds: 0,
+    countdownStartedAt: null,
+    holdStartedAt: null,
+    restStartedAt: null,
+  }
+}
+
 function sumHolds(intervals: Interval[]): number {
   return intervals.reduce((sum, i) => sum + i.holdSeconds, 0)
 }
 
 export function trainingReducer(state: TrainingState, action: TrainingAction): TrainingState {
   switch (action.type) {
+    case 'START': {
+      if (state.phase !== 'ready') return state
+      return { ...state, phase: 'countdown', countdownStartedAt: action.now }
+    }
+
     case 'COUNTDOWN_FINISHED': {
       if (state.phase !== 'countdown') return state
       return { ...state, phase: 'holding', holdStartedAt: action.now, countdownStartedAt: null }

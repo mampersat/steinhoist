@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BigButton } from '../components/BigButton'
 import { ChoiceRow, Field, MinSecInput } from '../components/FormControls'
+import { nextAnnualDate } from '../domain/date'
 import { toSeconds } from '../domain/format'
 import { useProfile } from '../hooks/useProfile'
 import type { DominantArm, ExperienceLevel, Profile } from '../types'
@@ -39,7 +40,10 @@ export function Onboarding() {
   return (
     <div className="mx-auto max-w-md px-6 py-10">
       <h1 className="mb-1 font-display text-4xl font-bold text-stein-amber-bright">Stein Hoist Trainer</h1>
-      <p className="mb-8 text-stein-cream/70">A few quick questions to build your training plan.</p>
+      <p className="mb-1 text-stein-cream/90">Get better at Steinholding with a plan, not just a stopwatch.</p>
+      <p className="mb-8 text-sm text-stein-cream/60">
+        Data stays on this device, no account needed. A few quick questions to build your plan.
+      </p>
 
       <Field label="Dominant arm">
         <ChoiceRow
@@ -85,6 +89,13 @@ export function Onboarding() {
           onChange={(e) => setCompetitionDate(e.target.value)}
           className="w-full rounded-lg bg-stein-surface px-4 py-3 text-stein-cream outline-none"
         />
+        <button
+          type="button"
+          onClick={() => setCompetitionDate(nextAnnualDate(11, 1))}
+          className="mt-2 rounded-full bg-stein-surface px-3 py-1 text-xs font-semibold text-stein-amber-bright"
+        >
+          Pat's Peak (Nov 1)
+        </button>
       </Field>
 
       <Field label="Do you have a target hold time?">

@@ -8,6 +8,7 @@ import { getNextWorkout } from '../domain/program'
 import { useProfile } from '../hooks/useProfile'
 import { useSessions } from '../hooks/useSessions'
 import { useSettings } from '../hooks/useSettings'
+import { debugNow } from '../lib/debugClock'
 import { sessionStore } from '../storage/repository'
 
 const typeLabel: Record<string, string> = {
@@ -15,7 +16,7 @@ const typeLabel: Record<string, string> = {
   training: 'Training Hold',
   competition: 'Competition',
   strength: 'Strength / Supplemental Work',
-  rest: 'Rest Day',
+  rest: "Today's work is done",
 }
 
 export function Home() {
@@ -28,8 +29,8 @@ export function Home() {
 
   const pr = computePR(sessions)
   const inProgress = sessionStore.getInProgress()
-  const nextWorkout = getNextWorkout(profile, sessions)
-  const daysToComp = profile.competitionDate ? daysBetween(toISODate(new Date()), profile.competitionDate) : null
+  const nextWorkout = getNextWorkout(profile, sessions, debugNow())
+  const daysToComp = profile.competitionDate ? daysBetween(toISODate(debugNow()), profile.competitionDate) : null
 
   function handleStart() {
     if (inProgress) {
@@ -74,7 +75,7 @@ export function Home() {
 
       <div className="mb-8 rounded-xl border border-stein-amber/30 bg-stein-surface p-5">
         <div className="text-sm font-semibold text-stein-cream/60">
-          {inProgress ? 'Resume workout' : "Today's workout"}
+          {inProgress ? 'Resume workout' : nextWorkout.type === 'rest' ? 'Status' : "Today's workout"}
         </div>
         <div className="mt-1 text-2xl font-bold">{typeLabel[inProgress?.type ?? nextWorkout.type]}</div>
         {!inProgress && <p className="mt-2 text-sm text-stein-cream/70">{nextWorkout.rationale}</p>}
@@ -101,6 +102,10 @@ export function Home() {
         <span className="h-4 w-px bg-stein-cream/20" />
         <Link to="/settings" className="px-3">
           Settings
+        </Link>
+        <span className="h-4 w-px bg-stein-cream/20" />
+        <Link to="/about" className="px-3">
+          About
         </Link>
       </div>
     </div>

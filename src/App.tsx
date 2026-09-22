@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { useProfile } from './hooks/useProfile'
+import { About } from './pages/About'
 import { History } from './pages/History'
 import { Home } from './pages/Home'
 import { Onboarding } from './pages/Onboarding'
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="/plan" element={<Plan />} />
         <Route path="/rules" element={<Rules />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/about" element={<About />} />
       </Route>
       <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>

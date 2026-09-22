@@ -4,7 +4,7 @@ import { BigButton } from '../../components/BigButton'
 import { Stat } from '../../components/Stat'
 import {
   currentHoldSeconds,
-  initTrainingState,
+  initReadyState,
   secondsRemaining,
   trainingReducer,
   type TrainingState,
@@ -12,6 +12,8 @@ import {
 import { formatMMSS } from '../../domain/format'
 import { computePR } from '../../domain/pr'
 import { cueCountdownTick, cueRaiseStein, cueRestStarted, cueWorkoutComplete } from '../../lib/cues'
+import { debugNow } from '../../lib/debugClock'
+import { randomTip } from '../../lib/tips'
 import { useSessions } from '../../hooks/useSessions'
 import { useSettings } from '../../hooks/useSettings'
 import { sessionStore, trainingRuntimeStore } from '../../storage/repository'
@@ -90,7 +92,7 @@ export function TrainingHold() {
     const session: WorkoutSession = {
       id: crypto.randomUUID(),
       type: 'training',
-      date: new Date().toISOString().slice(0, 10),
+      date: debugNow().toISOString().slice(0, 10),
       startedAt: new Date().toISOString(),
       status: 'in_progress',
       prAtTimeOfSession: priorPR,
@@ -100,7 +102,7 @@ export function TrainingHold() {
     }
     return {
       session,
-      state: initTrainingState(target, rest, Date.now()),
+      state: initReadyState(target, rest),
       needsResumeConfirmation: false,
     }
   })
@@ -111,6 +113,8 @@ export function TrainingHold() {
   const [resumeConfirmed, setResumeConfirmed] = useState(!needsResumeConfirmation)
   const [now, setNow] = useState(() => Date.now())
   const [confirmingAbandon, setConfirmingAbandon] = useState(false)
+  const [readyTip] = useState(randomTip)
+  const [restTip, setRestTip] = useState(randomTip)
   const prevPhase = useRef(state.phase)
   const countdownTickRef = useRef(-1)
 
@@ -125,7 +129,10 @@ export function TrainingHold() {
     setSession((s) => persist(s, state))
     if (state.phase !== prevPhase.current) {
       if (state.phase === 'holding') cueRaiseStein(settings)
-      if (state.phase === 'resting') cueRestStarted(settings)
+      if (state.phase === 'resting') {
+        cueRestStarted(settings)
+        setRestTip(randomTip())
+      }
       if (state.phase === 'complete') {
         cueWorkoutComplete(settings)
         upsertSession(persist(session, state))
@@ -196,6 +203,22 @@ export function TrainingHold() {
     )
   }
 
+  if (state.phase === 'ready') {
+    return (
+      <Screen>
+        <p className="mb-6 text-center text-xl text-stein-cream/80">
+          Hold to failure, rest, and repeat until you reach your accumulated target.
+        </p>
+        <div className="mb-10 flex w-full divide-x divide-stein-amber/20 border-y border-stein-amber/15 py-4">
+          <Stat label="Session target" value={formatMMSS(state.targetAccumulatedSeconds)} />
+          <Stat label="Rest between holds" value={`${state.restPrescribedSeconds}s`} />
+        </div>
+        <p className="mb-10 text-center font-display text-2xl text-stein-amber/80">{readyTip}</p>
+        <BigButton onClick={() => dispatch({ type: 'START', now: Date.now() })}>Start</BigButton>
+      </Screen>
+    )
+  }
+
   if (state.phase === 'countdown') {
     const display = Math.max(0, Math.ceil(secondsRemaining(state, now)))
     return (
@@ -242,7 +265,7 @@ export function TrainingHold() {
   return (
     <Screen>
       <div className="mb-8 flex w-full divide-x divide-stein-amber/20 border-y border-stein-amber/15 py-4">
-        <Stat label="Target" value={formatMMSS(state.targetAccumulatedSeconds)} />
+        <Stat label="Session target" value={formatMMSS(state.targetAccumulatedSeconds)} />
         <Stat label="Accumulated" value={formatMMSS(state.accumulatedSeconds)} />
       </div>
 
@@ -259,9 +282,10 @@ export function TrainingHold() {
       ) : (
         <>
           <div className="mb-2 text-sm font-semibold text-stein-cream/60">Rest</div>
-          <div className="mb-10 text-7xl font-black tabular-nums text-stein-cream">
+          <div className="mb-4 text-7xl font-black tabular-nums text-stein-cream">
             {formatMMSS(secondsRemaining(state, now))}
           </div>
+          <p className="mb-10 text-center font-display text-2xl text-stein-amber/80">{restTip}</p>
           <BigButton onClick={() => dispatch({ type: 'SKIP_REST', now: Date.now() })}>Ready - Go Now</BigButton>
         </>
       )}

@@ -5,6 +5,8 @@ import { COUNTDOWN_SECONDS } from '../../domain/trainingMachine'
 import { formatMMSS } from '../../domain/format'
 import { computePR } from '../../domain/pr'
 import { cueCountdownTick, cueWorkoutComplete } from '../../lib/cues'
+import { debugNow } from '../../lib/debugClock'
+import { randomTip } from '../../lib/tips'
 import { useSessions } from '../../hooks/useSessions'
 import { useSettings } from '../../hooks/useSettings'
 import { sessionStore } from '../../storage/repository'
@@ -26,6 +28,7 @@ export function PracticeHold() {
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS)
   const [now, setNow] = useState(() => Date.now())
   const [resultSeconds, setResultSeconds] = useState<number | null>(null)
+  const [tip] = useState(randomTip)
   const lastTick = useRef(-1)
 
   useEffect(() => {
@@ -60,7 +63,7 @@ export function PracticeHold() {
     const s: WorkoutSession = {
       id: crypto.randomUUID(),
       type: 'practice',
-      date: new Date().toISOString().slice(0, 10),
+      date: debugNow().toISOString().slice(0, 10),
       startedAt: new Date().toISOString(),
       status: 'in_progress',
       prAtTimeOfSession: priorPR,
@@ -88,6 +91,7 @@ export function PracticeHold() {
           Hold the stein straight out in front of you with one arm, in legal competition form, for as long as you
           can.
         </p>
+        <p className="mb-10 text-center font-display text-2xl text-stein-amber/80">{tip}</p>
         <BigButton onClick={beginCountdown}>Start</BigButton>
       </Screen>
     )
